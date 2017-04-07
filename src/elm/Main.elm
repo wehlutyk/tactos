@@ -1,14 +1,22 @@
 module Main exposing (..)
 
 import Html
+import Html.Attributes as Attributes
+import Mouse
+import Random
 
 
 -- APP
 
 
-main : Program Never Int Msg
+main : Program Never Model Msg
 main =
-    Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
 
 
 
@@ -16,12 +24,18 @@ main =
 
 
 type alias Model =
-    Int
+    { cursor : Int
+    , obstacle : Int
+    }
 
 
-model : number
-model =
-    0
+init : ( Model, Cmd Msg )
+init =
+    ( { cursor = 0
+      , obstacle = 0
+      }
+    , Random.generate Obstacle (Random.int 0 100)
+    )
 
 
 
@@ -29,14 +43,27 @@ model =
 
 
 type Msg
-    = NoOp
+    = Move Mouse.Position
+    | Obstacle Int
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            model
+        Move position ->
+            { model | cursor = position.x } ! []
+
+        Obstacle vw ->
+            { model | obstacle = vw } ! []
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Mouse.moves Move
 
 
 
@@ -45,4 +72,18 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    Html.div [] [ Html.text "Hello" ]
+    Html.div [ Attributes.class "container" ]
+        [ Html.div [] [ Html.text "Hello" ]
+        , Html.div
+            [ Attributes.class "object"
+            , Attributes.style [ ( "left", toString model.obstacle ++ "vw" ) ]
+            ]
+            []
+        , Html.div
+            [ Attributes.class "object"
+            , Attributes.class "cursor"
+            , Attributes.style [ ( "left", toString model.cursor ++ "px" ) ]
+            ]
+            []
+        , Html.div [ Attributes.class "line" ] []
+        ]

@@ -1,0 +1,25 @@
+:root {
+  --main-object-size: 1rem;
+}
+
+* {
+  margin: 0;
+}
+
+.object {
+  position: absolute;
+  border-radius: 100%;
+  height: var(--main-object-size);
+  width: var(--main-object-size);
+  background-color: #ccb974;
+  transform: translateX(-50%);
+}
+
+.cursor {
+  background-color: #55a868;
+}
+
+.line {
+  height: var(--main-object-size);
+  background-color: rgba(76, 114, 176, 0.2);
+}
