@@ -37,7 +37,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     { cursor = -100
-    , obstacle = 0
+    , obstacle = -100
     , pointerLock = Just False
     , width = 0
     }
@@ -116,10 +116,20 @@ view : Model -> Html.Html Msg
 view model =
     Html.div
         [ Attributes.id "container"
+        , Attributes.classList [ ( "colliding", colliding model ) ]
         ]
         [ lockView model
         , lineView model
         ]
+
+
+colliding : Model -> Bool
+colliding model =
+    let
+        obstacle =
+            round <| toFloat (model.obstacle * model.width) / 100
+    in
+        (obstacle - objectSize <= model.cursor) && (model.cursor <= obstacle + objectSize)
 
 
 lockView : Model -> Html.Html Msg
