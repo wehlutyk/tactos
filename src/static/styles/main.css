@@ -1,9 +1,15 @@
 :root {
-  --main-object-size: 1rem;
+  --main-object-size: 15px;
 }
 
 * {
   margin: 0;
+}
+
+#container {
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
 }
 
 .object {
@@ -12,7 +18,7 @@
   height: var(--main-object-size);
   width: var(--main-object-size);
   background-color: #ccb974;
-  transform: translateX(-50%);
+  transform: translateX(-100%);
 }
 
 .cursor {
@@ -22,4 +28,15 @@
 .line {
   height: var(--main-object-size);
   background-color: rgba(76, 114, 176, 0.2);
+}
+
+header {
+  text-align: center;
+}
+
+h1 {
+  font-size: 2em;
+  color: grey;
+  margin: 2em;
+  font-family: Helvetica, sans-serif;
 }

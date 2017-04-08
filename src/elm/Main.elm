@@ -3,7 +3,10 @@ module Main exposing (..)
 import Html
 import Html.Attributes as Attributes
 import Mouse
+import Ports
 import Random
+import Task
+import Window
 
 
 -- APP
@@ -26,16 +29,30 @@ main =
 type alias Model =
     { cursor : Int
     , obstacle : Int
+    , pointerLock : Maybe Bool
+    , width : Int
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { cursor = 0
-      , obstacle = 0
-      }
-    , Random.generate Obstacle (Random.int 0 100)
-    )
+    { cursor = -100
+    , obstacle = 0
+    , pointerLock = Just False
+    , width = 0
+    }
+        ! [ Random.generate Obstacle (Random.int 0 100)
+          , Task.perform WindowWidth Window.width
+          ]
+
+
+
+-- FIXME: use elm-css size value
+
+
+objectSize : Int
+objectSize =
+    15
 
 
 
@@ -43,18 +60,38 @@ init =
 
 
 type Msg
-    = Move Mouse.Position
+    = Move Mouse.Movement
     | Obstacle Int
+    | PointerLock (Maybe Bool)
+    | WindowWidth Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Move position ->
-            { model | cursor = position.x } ! []
+        Move movement ->
+            case model.pointerLock of
+                Just True ->
+                    let
+                        cursor =
+                            (model.cursor + movement.x) % (model.width + objectSize)
+                    in
+                        { model | cursor = cursor } ! []
+
+                Just False ->
+                    model ! []
+
+                Nothing ->
+                    model ! []
 
         Obstacle vw ->
             { model | obstacle = vw } ! []
+
+        PointerLock lock ->
+            { model | pointerLock = lock } ! []
+
+        WindowWidth width ->
+            { model | width = width } ! []
 
 
 
@@ -63,7 +100,12 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Mouse.moves Move
+    Sub.batch
+        [ Mouse.moves Move
+        , Ports.pointerLockChange (PointerLock << Just)
+        , Ports.pointerLockError (always <| PointerLock Nothing)
+        , Window.resizes (WindowWidth << .width)
+        ]
 
 
 
@@ -72,9 +114,35 @@ subscriptions model =
 
 view : Model -> Html.Html Msg
 view model =
-    Html.div [ Attributes.class "container" ]
-        [ Html.div [] [ Html.text "Hello" ]
-        , Html.div
+    Html.div
+        [ Attributes.id "container"
+        ]
+        [ lockView model
+        , lineView model
+        ]
+
+
+lockView : Model -> Html.Html Msg
+lockView model =
+    let
+        text =
+            case model.pointerLock of
+                Just True ->
+                    "Pointer locked — Press escape to release"
+
+                Just False ->
+                    "Click anywhere to start"
+
+                Nothing ->
+                    "Error locking pointer"
+    in
+        Html.header [] [ Html.h1 [] [ Html.text text ] ]
+
+
+lineView : Model -> Html.Html Msg
+lineView model =
+    Html.main_ []
+        [ Html.div
             [ Attributes.class "object"
             , Attributes.style [ ( "left", toString model.obstacle ++ "vw" ) ]
             ]
