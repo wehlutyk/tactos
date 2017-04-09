@@ -2,7 +2,7 @@
   "name": "tactos",
   "description": "Tactos interaction experiment",
   "version": "0.1.0",
-  "license": "GPL3",
+  "license": "GPL-3.0+",
   "author": "Sébastien Lerique",
   "repository": {
     "type": "git",
