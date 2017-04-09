@@ -94,6 +94,7 @@ if ( TARGET_ENV === 'production' ) {
   module.exports = merge( commonConfig, {
 
     entry: entryPath,
+    output: { publicPath: '/tactos' },
 
     module: {
       loaders: [
