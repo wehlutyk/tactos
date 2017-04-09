@@ -6,7 +6,7 @@ var App = require('../elm/Main');
 var main = document.getElementById('main');
 var app = App.Main.embed(main);
 
-// Setup ports. FIXME: make into effect managers
+// Setup ports
 document.addEventListener("pointerlockchange", function() {
   var id = document.pointerLockElement ? document.pointerLockElement.id : "";
   app.ports.pointerLockChange.send(document.pointerLockElement === main);
